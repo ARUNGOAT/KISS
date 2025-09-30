@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Choose Your Love Signal</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Courier New', monospace;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 900px;
+            text-align: center;
+            position: relative;
+            z-index: 10;
+        }
+
+        .screen {
+            display: none;
+            animation: fadeIn 0.8s ease;
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        /* Choice Screen */
+        .choice-title {
+            color: white;
+            font-size: 2.5em;
+            margin-bottom: 20px;
+            text-shadow: 0 0 20px rgba(255,255,255,0.5);
+            animation: glow 2s ease-in-out infinite;
+        }
+
+        @keyframes glow {
+            0%, 100% { text-shadow: 0 0 20px rgba(255,255,255,0.5); }
+            50% { text-shadow: 0 0 40px rgba(255,255,255,0.8); }
+        }
+
+        .choice-subtitle {
+            color: #e0e7ff;
+            font-size: 1.2em;
+            margin-bottom: 50px;
+        }
+
+        .choice-buttons {
+            display: flex;
+            gap: 40px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .choice-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 20px;
+            padding: 40px;
+            width: 300px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .choice-card:hover {
+            transform: translateY(-10px);
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.6);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+        }
+
+        .choice-icon {
+            font-size: 4em;
+            margin-bottom: 20px;
+            animation: bounce 2s ease-in-out infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+
+        .choice-card:hover .choice-icon {
+            animation: spin 1s ease;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .choice-name {
+            font-size: 2em;
+            color: white;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .choice-desc {
+            color: #e0e7ff;
+            font-size: 1em;
+            line-height: 1.5;
+        }
+
+        /* Radar Animation */
+        .radar-container {
+            width: 600px;
+            height: 600px;
+            margin: 0 auto;
+            position: relative;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 50%;
+            border: 3px solid #4ade80;
+            box-shadow: 0 0 50px rgba(74, 222, 128, 0.5);
+        }
+
+        .radar-grid {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+        }
+
+        .radar-circle {
+            position: absolute;
+            border: 1px solid rgba(74, 222, 128, 0.3);
+            border-radius: 50%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .antenna {
+            position: absolute;
+            width: 60px;
+            height: 80px;
+            bottom: 10%;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .antenna-base {
+            width: 40px;
+            height: 20px;
+            background: #4ade80;
+            border-radius: 5px;
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .antenna-tower {
+            width: 8px;
+            height: 50px;
+            background: linear-gradient(to top, #4ade80, #22c55e);
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .antenna-top {
+            width: 30px;
+            height: 30px;
+            background: #4ade80;
+            border-radius: 50%;
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            box-shadow: 0 0 20px #4ade80;
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 0 20px #4ade80; }
+            50% { box-shadow: 0 0 40px #4ade80, 0 0 60px #4ade80; }
+        }
+
+        .target {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            top: 20%;
+            right: 15%;
+            opacity: 0;
+        }
+
+        .target-heart {
+            font-size: 3em;
+            animation: heartbeat 1s ease-in-out infinite;
+        }
+
+        @keyframes heartbeat {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+
+        .signal {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: #fbbf24;
+            border-radius: 50%;
+            bottom: 20%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            opacity: 0;
+            box-shadow: 0 0 20px #fbbf24;
+        }
+
+        .signal-wave {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border: 2px solid #fbbf24;
+            border-radius: 50%;
+            animation: wave 1s ease-out infinite;
+        }
+
+        @keyframes wave {
+            0% {
+                transform: scale(0);
+                opacity: 1;
+            }
+            100% {
+                transform: scale(3);
+                opacity: 0;
+            }
+        }
+
+        /* CCN Animation */
+        .ccn-container {
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px;
+        }
+
+        .computer {
+            width: 200px;
+            height: 200px;
+            margin: 0 auto 20px;
+            position: relative;
+        }
+
+        .computer-screen {
+            width: 180px;
+            height: 120px;
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            border-radius: 10px;
+            border: 5px solid #1e3a8a;
+            position: relative;
+            box-shadow: 0 0 30px rgba(59, 130, 246, 0.5);
+        }
+
+        .computer-base {
+            width: 200px;
+            height: 20px;
+            background: #1e3a8a;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+
+        .computer-stand {
+            width: 60px;
+            height: 40px;
+            background: #1e3a8a;
+            margin: 0 auto;
+            clip-path: polygon(30% 0%, 70% 0%, 100% 100%, 0% 100%);
+        }
+
+        .computers-row {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            margin: 40px 0;
+        }
+
+        .computer-label {
+            color: white;
+            font-size: 1.5em;
+            margin-top: 10px;
+            font-weight: bold;
+        }
+
+        .arun-computer .computer-screen {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+        }
+
+        .diksha-computer .computer-screen {
+            background: linear-gradient(135deg, #ec4899, #db2777);
+        }
+
+        .message-packet {
+            position: absolute;
+            background: #fbbf24;
+            color: #000;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-weight: bold;
+            opacity: 0;
+            top: 50%;
+            left: 25%;
+            transform: translateY(-50%);
+            box-shadow: 0 0 20px #fbbf24;
+            animation: packetMove 3s ease-in-out;
+        }
+
+        @keyframes packetMove {
+            0% {
+                left: 25%;
+                opacity: 1;
+            }
+            50% {
+                left: 50%;
+                opacity: 1;
+            }
+            100% {
+                left: 75%;
+                opacity: 1;
+            }
+        }
+
+        .rejection-x {
+            position: absolute;
+            font-size: 4em;
+            color: #ef4444;
+            top: 50%;
+            right: 10%;
+            opacity: 0;
+            animation: showX 1s ease 3s forwards;
+        }
+
+        @keyframes showX {
+            0% {
+                opacity: 0;
+                transform: scale(0) rotate(0deg);
+            }
+            50% {
+                opacity: 1;
+                transform: scale(1.5) rotate(180deg);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1) rotate(360deg);
+            }
+        }
+
+        .acknowledgment {
+            position: absolute;
+            font-size: 3em;
+            top: 50%;
+            right: 10%;
+            opacity: 0;
+        }
+
+        .final-message {
+            font-size: 4em;
+            color: white;
+            text-align: center;
+            opacity: 0;
+            text-shadow: 0 0 30px rgba(255,255,255,0.8);
+            margin-top: 40px;
+            animation: finalReveal 2s ease forwards;
+        }
+
+        @keyframes finalReveal {
+            0% {
+                opacity: 0;
+                transform: scale(0.5);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .screen-content {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+            color: white;
+            font-size: 0.8em;
+            padding: 10px;
+        }
+
+        .back-button {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 2px solid white;
+            padding: 10px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: all 0.3s ease;
+            z-index: 100;
+        }
+
+        .back-button:hover {
+            background: rgba(255,255,255,0.3);
+            transform: translateX(-5px);
+        }
+
+        .radar-title, .ccn-title {
+            color: white;
+            font-size: 2em;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        /* Particles background */
+        .particle {
+            position: fixed;
+            width: 4px;
+            height: 4px;
+            background: white;
+            border-radius: 50%;
+            opacity: 0.6;
+            animation: float 10s ease-in-out infinite;
+            z-index: 1;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) translateX(0); }
+            25% { transform: translateY(-100px) translateX(50px); }
+            50% { transform: translateY(-200px) translateX(-50px); }
+            75% { transform: translateY(-100px) translateX(100px); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Choice Screen -->
+        <div class="screen active" id="choiceScreen">
+            <h1 class="choice-title">Choose Your Love Signal 💕</h1>
+            <p class="choice-subtitle">How should Arun send his love to Diksha?</p>
+            
+            <div class="choice-buttons">
+                <div class="choice-card" onclick="startRadar()">
+                    <div class="choice-icon">📡</div>
+                    <div class="choice-name">RADAR</div>
+                    <div class="choice-desc">Like a radar system, my love signal searches for you and bounces back stronger</div>
+                </div>
+                
+                <div class="choice-card" onclick="startCCN()">
+                    <div class="choice-icon">💻</div>
+                    <div class="choice-name">CCN</div>
+                    <div class="choice-desc">Like a computer network, my message might fail first, but I'll keep trying until you accept my love</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Radar Screen -->
+        <div class="screen" id="radarScreen">
+            <button class="back-button" onclick="goBack()">← Back</button>
+            <h2 class="radar-title">RADAR: Arun's Love Signal 💕</h2>
+            
+            <div class="radar-container">
+                <div class="radar-grid">
+                    <div class="radar-circle" style="width: 80%; height: 80%;"></div>
+                    <div class="radar-circle" style="width: 60%; height: 60%;"></div>
+                    <div class="radar-circle" style="width: 40%; height: 40%;"></div>
+                    <div class="radar-circle" style="width: 20%; height: 20%;"></div>
+                </div>
+                
+                <div class="antenna">
+                    <div class="antenna-top"></div>
+                    <div class="antenna-tower"></div>
+                    <div class="antenna-base"></div>
+                </div>
+                
+                <div class="target">
+                    <div class="target-heart">💖</div>
+                    <div style="color: #4ade80; font-size: 0.8em; margin-top: 5px;">Diksha</div>
+                </div>
+                
+                <div class="signal">
+                    <div class="signal-wave"></div>
+                    <div class="signal-wave" style="animation-delay: 0.3s;"></div>
+                    <div class="signal-wave" style="animation-delay: 0.6s;"></div>
+                </div>
+            </div>
+            
+            <div class="final-message" id="radarMessage"></div>
+        </div>
+
+        <!-- CCN Screen -->
+        <div class="screen" id="ccnScreen">
+            <button class="back-button" onclick="goBack()">← Back</button>
+            <h2 class="ccn-title">Communication Network: Persistent Love 💕</h2>
+            
+            <div class="ccn-container">
+                <div class="computers-row">
+                    <div class="arun-computer">
+                        <div class="computer">
+                            <div class="computer-screen">
+                                <div class="screen-content" id="arunScreen">Arun's System</div>
+                            </div>
+                            <div class="computer-stand"></div>
+                            <div class="computer-base"></div>
+                        </div>
+                        <div class="computer-label">Arun</div>
+                    </div>
+                    
+                    <div style="position: relative; width: 200px;">
+                        <div class="message-packet" id="packet1">I LOVE YOU 💕</div>
+                        <div class="message-packet" id="packet2">I LOVE YOU 💕</div>
+                        <div class="rejection-x" id="rejection">❌</div>
+                        <div class="acknowledgment" id="ack">✅ ACK</div>
+                    </div>
+                    
+                    <div class="diksha-computer">
+                        <div class="computer">
+                            <div class="computer-screen">
+                                <div class="screen-content" id="dikshaScreen">Diksha's System</div>
+                            </div>
+                            <div class="computer-stand"></div>
+                            <div class="computer-base"></div>
+                        </div>
+                        <div class="computer-label">Diksha</div>
+                    </div>
+                </div>
+                
+                <div class="final-message" id="ccnMessage"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Create floating particles
+        for(let i = 0; i < 30; i++) {
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+            particle.style.left = Math.random() * 100 + '%';
+            particle.style.top = Math.random() * 100 + '%';
+            particle.style.animationDelay = Math.random() * 10 + 's';
+            document.body.appendChild(particle);
+        }
+
+        function goBack() {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById('choiceScreen').classList.add('active');
+        }
+
+        function startRadar() {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById('radarScreen').classList.add('active');
+            
+            // Animate radar
+            setTimeout(() => {
+                document.querySelector('.target').style.opacity = '1';
+                document.querySelector('.target').style.animation = 'fadeIn 1s ease';
+            }, 500);
+            
+            setTimeout(() => {
+                document.querySelector('.signal').style.opacity = '1';
+                animateSignalToTarget();
+            }, 1500);
+        }
+
+        function animateSignalToTarget() {
+            const signal = document.querySelector('.signal');
+            const target = document.querySelector('.target');
+            
+            // Send signal
+            signal.style.transition = 'all 2s ease-in-out';
+            signal.style.bottom = '70%';
+            signal.style.left = '80%';
+            
+            setTimeout(() => {
+                // Return signal
+                signal.style.bottom = '20%';
+                signal.style.left = '50%';
+                signal.style.background = '#4ade80';
+                
+                setTimeout(() => {
+                    document.getElementById('radarMessage').textContent = 'Signal Received! 💕 You are my target, my destination, my everything!';
+                    document.getElementById('radarMessage').style.animationDelay = '0s';
+                }, 2000);
+            }, 2000);
+        }
+
+        function startCCN() {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById('ccnScreen').classList.add('active');
+            
+            // First message attempt
+            setTimeout(() => {
+                const packet1 = document.getElementById('packet1');
+                packet1.style.opacity = '1';
+                packet1.style.animation = 'packetMove 3s ease-in-out forwards';
+                
+                document.getElementById('arunScreen').textContent = 'Sending...';
+            }, 1000);
+            
+            // Show rejection
+            setTimeout(() => {
+                document.getElementById('rejection').style.display = 'block';
+                document.getElementById('dikshaScreen').textContent = 'Busy...';
+                document.getElementById('arunScreen').textContent = 'No ACK 😔';
+            }, 4000);
+            
+            // Second attempt
+            setTimeout(() => {
+                document.getElementById('rejection').style.display = 'none';
+                const packet2 = document.getElementById('packet2');
+                packet2.style.opacity = '1';
+                packet2.style.animation = 'packetMove 3s ease-in-out forwards';
+                
+                document.getElementById('arunScreen').textContent = 'Retrying...';
+            }, 5500);
+            
+            // Show acknowledgment
+            setTimeout(() => {
+                document.getElementById('ack').style.opacity = '1';
+                document.getElementById('ack').style.animation = 'finalReveal 1s ease forwards';
+                document.getElementById('dikshaScreen').textContent = 'Received! 💕';
+                document.getElementById('arunScreen').textContent = 'ACK! 😊';
+            }, 8500);
+            
+            // Final message
+            setTimeout(() => {
+                document.getElementById('ccnMessage').textContent = 'I LOVE YOU BUBU! 💕';
+                document.getElementById('ccnMessage').style.animationDelay = '0s';
+            }, 10000);
+        }
+    </script>
+</body>
+</html>
